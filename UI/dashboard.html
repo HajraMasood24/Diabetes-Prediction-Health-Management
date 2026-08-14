@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/ui/css/style.css">
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="logo" onclick="window.location.href='/'">🩺 DIABETES RISK AI</div>
+        <div class="nav-links">
+            <a href="/app" class="nav-link">Assessment</a>
+            <a href="/dashboard" class="nav-link active">Analytics</a>
+            <a href="/doctors" class="nav-link">Doctors</a>
+            <a href="/chatbot" class="nav-link">AI Assistant</a>
+            <a href="/wellness" class="nav-link">Wellness</a>
+        </div>
+        <div class="right-nav">
+            <div class="profile-icon" onclick="viewProfile()" title="My Profile">👤</div>
+            <button class="logout-btn" onclick="logout()">Exit</button>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="stats-grid" id="statsGrid"></div>
+        <div class="charts-grid">
+            <div class="glass-card chart-card">
+                <h3>Risk Distribution</h3>
+                <canvas id="riskChart"></canvas>
+            </div>
+            <div class="glass-card chart-card">
+                <h3>Risk Meter</h3>
+                <canvas id="gaugeChart"></canvas>
+            </div>
+            <div class="glass-card chart-card">
+                <h3>Outcome Analysis</h3>
+                <canvas id="outcomeChart"></canvas>
+            </div>
+            <div class="glass-card chart-card">
+                <h3>Health Trends</h3>
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="/ui/js/main.js"></script>
+    <script>
+        const authToken = localStorage.getItem('authToken');
+        
+        if (!authToken) {
+            window.location.href = '/login';
+        }
+        
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('username');
+            localStorage.removeItem('userId');
+            window.location.href = '/';
+        }
+        
+        function viewProfile() {
+            window.location.href = '/profile'
+        }
+
+        async function loadData() {
+            try {
+                console.log('Fetching from: http://127.0.0.1:5000/api/statistics');
+                const response = await fetch(`http://127.0.0.1:5000/api/statistics`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                console.log('API Response:', data);
+                
+                if (data.success && data.statistics) {
+                    updateUI(data.statistics);
+                } else {
+                    showNoDataMessage();
+                }
+            } catch(e) {
+                console.error('Error:', e);
+                showErrorMessage();
+            }
+        }
+        
+        function showNoDataMessage() {
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="glass-card stat-card">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">No assessments yet</div>
+                    <p style="margin-top: 15px; font-size: 13px;">Make your first prediction on the <a href="/app" style="color: #C18DB4;">Assessment page</a></p>
+                </div>
+            `;
+        }
+        
+        function showErrorMessage() {
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="glass-card stat-card">
+                    <div class="stat-value">⚠️</div>
+                    <div class="stat-label">Connection Error</div>
+                    <p style="margin-top: 15px; font-size: 13px;">Make sure Flask server is running on port 5000</p>
+                </div>
+            `;
+        }
+        
+        function updateUI(stats) {
+            const high = stats.risk_distribution?.High || 0;
+            const moderate = stats.risk_distribution?.Moderate || 0;
+            const low = stats.risk_distribution?.Low || 0;
+            
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="glass-card stat-card">
+                    <div class="stat-label">Total Assessments</div>
+                    <div class="stat-value">${stats.total_predictions || 0}</div>
+                </div>
+                <div class="glass-card stat-card">
+                    <div class="stat-label">High Risk Cases</div>
+                    <div class="stat-value" style="color: #C18DB4;">${high}</div>
+                </div>
+                <div class="glass-card stat-card">
+                    <div class="stat-label">Average Risk</div>
+                    <div class="stat-value">${((stats.avg_risk_probability || 0) * 100).toFixed(1)}%</div>
+                </div>
+                <div class="glass-card stat-card">
+                    <div class="stat-label">Diabetic Detected</div>
+                    <div class="stat-value">${stats.diabetic_count || 0}</div>
+                </div>
+            `;
+            
+            // Risk Distribution Chart
+            new Chart(document.getElementById('riskChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['High Risk', 'Moderate', 'Low Risk'],
+                    datasets: [{
+                        data: [high, moderate, low],
+                        backgroundColor: ['#C18DB4', '#87A7D0', '#E2CAD8'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { color: '#fff' } }
+                    }
+                }
+            });
+            
+            // Risk Gauge Chart
+            const riskPercent = (stats.avg_risk_probability || 0) * 100;
+            new Chart(document.getElementById('gaugeChart'), {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [riskPercent, 100 - riskPercent],
+                        backgroundColor: ['#C18DB4', 'rgba(193,141,180,0.2)'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '70%',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                }
+            });
+            
+            // Outcome Bar Chart
+            new Chart(document.getElementById('outcomeChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Diabetic', 'Non-Diabetic'],
+                    datasets: [{
+                        data: [stats.diabetic_count || 0, stats.non_diabetic_count || 0],
+                        backgroundColor: ['#C18DB4', '#87A7D0'],
+                        borderRadius: 10,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
+                        x: { ticks: { color: '#fff' } }
+                    }
+                }
+            });
+            
+            // Trend Chart
+            new Chart(document.getElementById('trendChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Risk Probability',
+                        data: [stats.avg_risk_probability || 0, 
+                            (stats.avg_risk_probability || 0) * 0.9,
+                            (stats.avg_risk_probability || 0) * 0.85,
+                            (stats.avg_risk_probability || 0) * 0.8],
+                        borderColor: '#C18DB4',
+                        backgroundColor: 'rgba(193,141,180,0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { labels: { color: '#fff' } } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#fff' } },
+                        x: { ticks: { color: '#fff' } }
+                    }
+                }
+            });
+        }
+        
+        loadData();
+    </script>
+</body>
+</html>

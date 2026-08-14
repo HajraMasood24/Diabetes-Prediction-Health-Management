@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Doctors - Diabetes Risk System</title>
+    <link rel="stylesheet" href="/ui/css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        /* ONLY doctors page specific styles - NO navbar styles here */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 25px;
+            margin-bottom: 30px;
+            padding: 0 20px;
+        }
+        
+        .sidebar {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(193,141,180,0.2);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .map-container {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 0;
+            border: 1px solid rgba(193,141,180,0.2);
+            overflow: hidden;
+            height: 85vh;
+        }
+        
+        #map { height: 100%; width: 100%; border-radius: 20px; }
+        
+        .search-section { margin-bottom: 25px; }
+        
+        .search-box {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(193,141,180,0.3);
+            border-radius: 12px;
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .search-box::placeholder { color: rgba(255,255,255,0.3); }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #C18DB4;
+            box-shadow: 0 0 0 3px rgba(193,141,180,0.1);
+        }
+        
+        .location-header {
+            background: linear-gradient(135deg, rgba(135,167,208,0.2), rgba(193,141,180,0.2));
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #87A7D0;
+            font-weight: 600;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-tab {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(193,141,180,0.3);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .filter-tab:hover { background: rgba(193,141,180,0.2); }
+        
+        .filter-tab.active {
+            background: #C18DB4;
+            color: #0E1F2F;
+            border-color: #C18DB4;
+        }
+        
+        .doctor-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 15px;
+            border-left: 4px solid #C18DB4;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .doctor-card:hover {
+            transform: translateX(5px);
+            background: rgba(193,141,180,0.1);
+        }
+        
+        .doctor-card.selected {
+            background: rgba(193,141,180,0.15);
+            border-left-width: 6px;
+        }
+        
+        .doctor-card h3 {
+            color: #E2CAD8;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .doctor-card p {
+            margin: 6px 0;
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.5;
+        }
+        
+        .distance-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #C18DB4;
+            color: #0E1F2F;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+        }
+        
+        .stars { color: #ffa726; font-size: 14px; }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+        
+        .status-open {
+            background: rgba(46,125,50,0.3);
+            color: #4caf50;
+        }
+        
+        .status-closed {
+            background: rgba(198,40,40,0.3);
+            color: #ef5350;
+        }
+        
+        .doctor-detail-panel {
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(193,141,180,0.3);
+        }
+        
+        .detail-item {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .detail-item:last-child { border-bottom: none; }
+        
+        .detail-item strong {
+            display: block;
+            color: #87A7D0;
+            margin-bottom: 4px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .detail-item p {
+            color: #E2CAD8;
+            font-size: 14px;
+        }
+        
+        .detail-item a { color: #C18DB4; text-decoration: none; }
+        .detail-item a:hover { text-decoration: underline; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .call-btn {
+            background: #2e7d32;
+            color: white;
+        }
+        
+        .call-btn:hover { background: #1b5e20; transform: translateY(-2px); }
+        
+        .directions-btn {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .directions-btn:hover { background: #1565c0; transform: translateY(-2px); }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .results-count {
+            font-size: 13px;
+            color: #87A7D0;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        h1 { 
+            text-align: center; 
+            background: linear-gradient(135deg, #E2CAD8, #C18DB4, #87A7D0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 20px 0 30px;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            .map-container {
+                height: 50vh;
+                order: -1;
+            }
+            .sidebar {
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="nav-bar">
+            <div class="logo" onclick="window.location.href='/'">🩺 DIABETES RISK AI</div>
+            <div class="nav-links">
+                <a href="/app" class="nav-link">Assessment</a>
+                <a href="/dashboard" class="nav-link">Analytics</a>
+                <a href="/doctors" class="nav-link active">Doctors</a>
+                <a href="/chatbot" class="nav-link">AI Assistant</a>
+                <a href="/wellness" class="nav-link">Wellness</a>
+            </div>
+            <div class="right-nav">
+                <div class="profile-icon" onclick="viewProfile()" title="My Profile">👤</div>
+                <button class="logout-btn" onclick="logout()">Exit</button>
+            </div>
+        </nav>
+        
+        <h1> Find Diabetes Specialists Near You</h1>
+        
+        <div class="main-layout">
+            <div class="sidebar">
+                <div class="location-header">
+                     Showing doctors near <strong>UET Lahore</strong>
+                </div>
+                
+                <div class="search-section">
+                    <input type="text" id="searchInput" class="search-box" placeholder=" Search by name, specialty, or location..." autocomplete="off">
+                </div>
+                
+                <div class="filter-tabs">
+                    <div class="filter-tab active" onclick="filterByType('all')">All</div>
+                    <div class="filter-tab" onclick="filterByType('hospital')">Hospitals</div>
+                    <div class="filter-tab" onclick="filterByType('clinic')">Clinics</div>
+                    <div class="filter-tab" onclick="filterByType('open')">Open Now</div>
+                </div>
+                
+                <div class="results-count" id="resultsCount">10 doctors found</div>
+                
+                <div id="doctorsList"></div>
+            </div>
+            
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const UET_COORDS = [31.5780, 74.3575];
+        
+        const doctorsDatabase = [
+            { id: 1, name: "Shalamar Hospital", address: "Mughalpura, Baghbanpura Road, Lahore", coords: [31.5845, 74.3625], phone: "(042) 111-205-205", specialty: "Endocrinology & Diabetes Center", type: "hospital", rating: 4.7, reviews: 980, hours: "24/7 Emergency, OPD: Mon-Sat 8:00 AM - 8:00 PM", openNow: true, website: "shalamarhospital.org.pk", distance: "0.9 km", tags: ["diabetes", "hospital", "endocrinologist"] },
+            { id: 2, name: "Hameed Latif Hospital", address: "14-Abu Bakar Block, New Garden Town, Lahore", coords: [31.5025, 74.3260], phone: "(042) 111-000-043", specialty: "Diabetes & Internal Medicine", type: "hospital", rating: 4.6, reviews: 765, hours: "24/7 Emergency, OPD: Mon-Sat 9:00 AM - 6:00 PM", openNow: true, website: "hameedlatifhospital.com", distance: "8.9 km", tags: ["diabetes", "hospital"] },
+            { id: 3, name: "Mughal Eye Hospital", address: "GT Road, Near UET Main Gate, Lahore", coords: [31.5710, 74.3530], phone: "(042) 35303108", specialty: "Diabetic Retinopathy Clinic", type: "hospital", rating: 4.5, reviews: 445, hours: "Mon-Sat 8:00 AM - 5:00 PM", openNow: true, website: "mughaleyehospital.pk", distance: "0.3 km", tags: ["diabetes", "eye", "retinopathy"] },
+            { id: 4, name: "Mayo Hospital Lahore", address: "King Edward Road, Anarkali, Lahore", coords: [31.5656, 74.3242], phone: "(042) 992-111-29", specialty: "Endocrinology & Diabetes Department", type: "hospital", rating: 4.8, reviews: 1250, hours: "24/7 Emergency, OPD: Mon-Fri 8:00 AM - 2:00 PM", openNow: true, website: "mayohospital.gop.pk", distance: "3.2 km", tags: ["diabetes", "hospital", "endocrinology"] },
+            { id: 5, name: "Chughtai Lab & Healthcare", address: "Main GT Road, Near UET Lahore", coords: [31.5715, 74.3555], phone: "0345-1343947", specialty: "Diabetes Screening & Testing", type: "clinic", rating: 4.7, reviews: 890, hours: "Mon-Sun 7:00 AM - 11:00 PM", openNow: true, website: "chughtailab.com", distance: "0.2 km", tags: ["diabetes", "lab", "clinic"] },
+            { id: 6, name: "Fatima Memorial Hospital", address: "Shadman, Jail Road, Lahore", coords: [31.5474, 74.3214], phone: "(042) 111-555-600", specialty: "Endocrinology Department", type: "hospital", rating: 4.6, reviews: 678, hours: "24/7 Emergency", openNow: true, website: "fatimamemorial.org.pk", distance: "4.5 km", tags: ["diabetes", "hospital"] },
+            { id: 7, name: "Services Hospital Lahore", address: "Jail Road, Services Hospital Road, Lahore", coords: [31.5204, 74.3587], phone: "(042) 992-034-02", specialty: "Diabetes & Endocrine Centre", type: "hospital", rating: 4.6, reviews: 890, hours: "24/7 Emergency, OPD: Mon-Fri 8:30 AM - 1:30 PM", openNow: true, website: "serviceshospital.gop.pk", distance: "6.8 km", tags: ["diabetes", "hospital"] },
+            { id: 8, name: "Sir Ganga Ram Hospital", address: "Fatima Jinnah Road, Queens Road, Lahore", coords: [31.5546, 74.3285], phone: "(042) 992-005-72", specialty: "Endocrinology & Diabetes Unit", type: "hospital", rating: 4.7, reviews: 856, hours: "24/7 Emergency, OPD: Mon-Sat 9:00 AM - 1:00 PM", openNow: true, website: "fjmu.edu.pk", distance: "2.8 km", tags: ["diabetes", "hospital"] },
+            { id: 9, name: "Jinnah Hospital Lahore", address: "Jail Road, Faisal Town, Lahore", coords: [31.4907, 74.3436], phone: "(042) 992-314-00", specialty: "Endocrinology Unit", type: "hospital", rating: 4.7, reviews: 720, hours: "24/7 Emergency", openNow: true, website: "aimc.edu.pk", distance: "10.5 km", tags: ["diabetes", "hospital"] },
+            { id: 10, name: "Shaukat Khanum Hospital", address: "7-A, Block R-3, Johar Town, Lahore", coords: [31.4697, 74.2728], phone: "(042) 359-050-00", specialty: "Endocrinology & Diabetes Department", type: "hospital", rating: 4.9, reviews: 2100, hours: "24/7 Emergency, OPD: Mon-Fri 9:00 AM - 5:00 PM", openNow: true, website: "shaukatkhanum.org.pk", distance: "15.2 km", tags: ["diabetes", "hospital"] }
+        ];
+
+        let map;
+        let markers = {};
+        let selectedDoctorId = null;
+        let currentFilter = 'all';
+        let filteredDoctors = [...doctorsDatabase];
+
+        function initMap() {
+            map = L.map('map').setView(UET_COORDS, 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
+            
+            const uetIcon = L.divIcon({ html: '<div style="background: #C18DB4; width: 35px; height: 35px; border-radius: 50%; border: 4px solid white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px;">📍</div>', iconSize: [35, 35] });
+            L.marker(UET_COORDS, { icon: uetIcon }).addTo(map).bindPopup('<strong>UET Lahore</strong><br>Your Location');
+            doctorsDatabase.forEach(doctor => addMarker(doctor));
+        }
+
+        function addMarker(doctor) {
+            const icon = L.divIcon({ html: `<div style="background: #87A7D0; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white;"></div>`, iconSize: [30, 30] });
+            const marker = L.marker(doctor.coords, { icon: icon }).addTo(map);
+            marker.bindPopup(`<strong style="color: #C18DB4;">${doctor.name}</strong><br>${doctor.specialty}<br>⭐ ${doctor.rating}<br><a href="#" onclick="selectDoctor(${doctor.id}); return false;" style="color: #C18DB4;">View Details →</a>`);
+            marker.on('click', () => selectDoctor(doctor.id));
+            markers[doctor.id] = marker;
+        }
+
+        function selectDoctor(id) {
+            selectedDoctorId = id;
+            const doctor = doctorsDatabase.find(d => d.id === id);
+            map.setView(doctor.coords, 14);
+            markers[id].openPopup();
+            renderDoctorsList();
+        }
+
+        function renderDoctorsList() {
+            const container = document.getElementById('doctorsList');
+            if (filteredDoctors.length === 0) {
+                container.innerHTML = '<div class="no-results">❌ No doctors found matching your criteria</div>';
+                return;
+            }
+            container.innerHTML = filteredDoctors.map(doctor => {
+                const stars = '⭐'.repeat(Math.floor(doctor.rating));
+                const isSelected = selectedDoctorId === doctor.id;
+                return `
+                    <div class="doctor-card ${isSelected ? 'selected' : ''}" onclick="selectDoctor(${doctor.id})">
+                        <div class="distance-badge">${doctor.distance}</div>
+                        <h3> ${doctor.name}</h3>
+                        <p style="color: #C18DB4; font-weight: 600;"> ${doctor.specialty}</p>
+                        <p> ${doctor.address}</p>
+                        <div class="rating"><span class="stars">${stars}</span> <span>${doctor.rating} (${doctor.reviews} reviews)</span></div>
+                        <span class="status-badge status-open"> Open Now</span>
+                        ${isSelected ? `
+                            <div class="doctor-detail-panel">
+                                <div class="detail-item"><strong> Phone</strong><p>${doctor.phone}</p></div>
+                                <div class="detail-item"><strong> Hours</strong><p>${doctor.hours}</p></div>
+                                <div class="detail-item"><strong> Website</strong><p><a href="https://${doctor.website}" target="_blank">${doctor.website}</a></p></div>
+                                <div class="action-buttons">
+                                    <button class="action-btn call-btn" onclick="event.stopPropagation(); window.location.href='tel:${doctor.phone}'"> Call Now</button>
+                                    <button class="action-btn directions-btn" onclick="event.stopPropagation(); openDirections(${doctor.coords[0]}, ${doctor.coords[1]})"> Directions</button>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openDirections(lat, lng) { window.open(`https://www.google.com/maps/dir/${UET_COORDS[0]},${UET_COORDS[1]}/${lat},${lng}`, '_blank'); }
+        function filterByType(type) {
+            currentFilter = type;
+            document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            if (type === 'all') filteredDoctors = [...doctorsDatabase];
+            else if (type === 'open') filteredDoctors = doctorsDatabase.filter(d => d.openNow);
+            else filteredDoctors = doctorsDatabase.filter(d => d.type === type);
+            document.getElementById('resultsCount').innerText = `${filteredDoctors.length} doctors found`;
+            renderDoctorsList();
+        }
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            if (query.length === 0) filteredDoctors = [...doctorsDatabase];
+            else filteredDoctors = doctorsDatabase.filter(doctor => doctor.name.toLowerCase().includes(query) || doctor.specialty.toLowerCase().includes(query) || doctor.address.toLowerCase().includes(query) || doctor.tags.some(tag => tag.includes(query)));
+            document.getElementById('resultsCount').innerText = `${filteredDoctors.length} doctors found`;
+            renderDoctorsList();
+        }
+        function logout() { localStorage.removeItem('authToken'); localStorage.removeItem('username'); window.location.href = '/'; }
+        function viewProfile() 
+        {
+             window.location.href = '/profile';
+         }
+        
+        document.addEventListener('DOMContentLoaded', () => { initMap(); renderDoctorsList(); document.getElementById('searchInput').addEventListener('input', handleSearch); });
+    </script>
+</body>
+</html>

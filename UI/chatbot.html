@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Health Chatbot - Diabetes Risk AI</title>
+    <link rel="stylesheet" href="/ui/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Upright:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .chat-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px 20px 40px 20px;
+        }
+        
+        .chat-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            border: 1px solid rgba(193, 141, 180, 0.2);
+            height: calc(100vh - 140px);
+            min-height: 650px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 25px 30px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(193, 141, 180, 0.2);
+        }
+        
+        .chat-header h1 {
+            font-family: 'Cormorant Upright', serif;
+            color: #E2CAD8;
+            font-size: 28px;
+        }
+        
+        .chat-header p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            margin-left: auto;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+        }
+        
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .message.user {
+            justify-content: flex-end;
+        }
+        
+        .message.bot {
+            justify-content: flex-start;
+        }
+        
+        .message-content {
+            max-width: 75%;
+            padding: 14px 20px;
+            border-radius: 22px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        .message.user .message-content {
+            background: linear-gradient(135deg, #C18DB4, #87A7D0);
+            color: #0E1F2F;
+            border-radius: 22px 22px 4px 22px;
+        }
+        
+        .message.bot .message-content {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(193, 141, 180, 0.3);
+            color: #E2CAD8;
+            border-radius: 22px 22px 22px 4px;
+        }
+        
+        .chat-input-area {
+            display: flex;
+            gap: 12px;
+            padding: 20px 25px;
+            border-top: 1px solid rgba(193, 141, 180, 0.2);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .chat-input-area input {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(193, 141, 180, 0.3);
+            border-radius: 30px;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+        }
+        
+        .chat-input-area input:focus {
+            outline: none;
+            border-color: #C18DB4;
+        }
+        
+        .send-btn {
+            padding: 15px 35px;
+            background: linear-gradient(135deg, #C18DB4, #87A7D0);
+            border: none;
+            border-radius: 30px;
+            color: #0E1F2F;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(193,141,180,0.3);
+        }
+        
+        .quick-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px 25px;
+            border-top: 1px solid rgba(193, 141, 180, 0.1);
+        }
+        
+        .quick-btn {
+            padding: 8px 18px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(193,141,180,0.3);
+            border-radius: 25px;
+            font-size: 12px;
+            color: #87A7D0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quick-btn:hover {
+            background: rgba(193,141,180,0.2);
+            color: #E2CAD8;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            gap: 6px;
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 22px;
+            width: fit-content;
+        }
+        
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #87A7D0;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .chat-container {
+                padding: 10px;
+            }
+            .chat-card {
+                height: calc(100vh - 100px);
+                min-height: 550px;
+            }
+            .message-content {
+                max-width: 85%;
+                font-size: 13px;
+                padding: 10px 14px;
+            }
+            .chat-header h1 {
+                font-size: 20px;
+            }
+            .send-btn {
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="logo" onclick="window.location.href='/app'">🩺 DIABETES RISK AI</div>
+        <div class="nav-links">
+            <a href="/app" class="nav-link">Assessment</a>
+            <a href="/dashboard" class="nav-link">Analytics</a>
+            <a href="/doctors" class="nav-link">Doctors</a>
+            <a href="/chatbot" class="nav-link active">AI Chat</a>
+            <a href="/wellness" class="nav-link">Wellness</a>
+        </div>
+        <div class="right-nav">
+            <div class="profile-icon" onclick="window.location.href='/profile'" title="My Profile">👤</div>
+            <button class="logout-btn" onclick="logout()">Exit</button>
+        </div>
+    </nav>
+    
+    <div class="chat-container">
+        <div class="chat-card">
+            <div class="chat-header">
+                <h1>AI Health Assistant</h1>
+                <p>Powered by Gemini AI</p>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <div class="message-content">
+                         Hello! I'm your AI health assistant. Ask me anything about:<br><br>
+                        • Diabetes management<br>
+                        • Healthy diet & nutrition<br>
+                        • Exercise & lifestyle<br>
+                        • Medication & symptoms<br><br>
+                        How can I help you today?
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-questions">
+                <button class="quick-btn" onclick="quickQuestion('What foods help lower blood sugar?')"> Lower blood sugar</button>
+                <button class="quick-btn" onclick="quickQuestion('Best exercises for diabetes?')"> Best exercises</button>
+                <button class="quick-btn" onclick="quickQuestion('How to prevent diabetes?')"> Prevention tips</button>
+                <button class="quick-btn" onclick="quickQuestion('Healthy breakfast ideas?')"> Healthy breakfast</button>
+                <button class="quick-btn" onclick="quickQuestion('Foods to avoid for diabetes?')"> Foods to avoid</button>
+                <button class="quick-btn" onclick="quickQuestion('How does stress affect blood sugar?')"> Stress & sugar</button>
+            </div>
+            
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Ask me anything about diabetes, diet, or health..." onkeypress="if(event.key==='Enter') sendMessage()">
+                <button class="send-btn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const token = localStorage.getItem('authToken');
+        
+        if (!token) {
+            window.location.href = '/login';
+        }
+        
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('username');
+            localStorage.removeItem('userId');
+            window.location.href = '/';
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addMessage(message, 'user');
+            input.value = '';
+            showTypingIndicator();
+            
+            try {
+                const response = await fetch('/api/dietary', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ query: message })
+                });
+                
+                const data = await response.json();
+                hideTypingIndicator();
+                
+                if (data.success) {
+                    addMessage(data.advice, 'bot');
+                } else {
+                    addMessage('Sorry, I am having trouble responding. Please try again.', 'bot');
+                }
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('Connection error. Please make sure the server is running.', 'bot');
+            }
+        }
+        
+        function addMessage(text, sender) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `<div class="message-content">${text.replace(/\n/g, '<br>')}</div>`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function showTypingIndicator() {
+            const messagesDiv = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            `;
+            messagesDiv.appendChild(typingDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+        }
+        
+        function quickQuestion(question) {
+            document.getElementById('chatInput').value = question;
+            sendMessage();
+        }
+    </script>
+</body>
+</html>

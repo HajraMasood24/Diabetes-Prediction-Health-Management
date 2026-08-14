@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Center - Diabetes Risk AI</title>
+    <link rel="stylesheet" href="/ui/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Upright:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .wellness-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        /* Dietary Advice Section */
+        .dietary-section {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 30px;
+            border: 1px solid rgba(193, 141, 180, 0.2);
+        }
+        
+        .dietary-section h2 {
+            font-family: 'Cormorant Upright', serif;
+            color: #E2CAD8;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        .advice-card {
+            background: rgba(255,255,255,0.02);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .advice-card h3 {
+            color: #C18DB4;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .advice-text {
+            color: rgba(255,255,255,0.8);
+            line-height: 1.8;
+            font-size: 14px;
+        }
+        
+        .advice-input-area {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .advice-input-area input {
+            flex: 1;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(193,141,180,0.3);
+            border-radius: 15px;
+            color: white;
+        }
+        
+        .advice-input-area input:focus {
+            outline: none;
+            border-color: #C18DB4;
+        }
+        
+        .get-advice-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #C18DB4, #87A7D0);
+            border: none;
+            border-radius: 15px;
+            color: #0E1F2F;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* Reminder Settings Section */
+        .reminder-section {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 30px;
+            border: 1px solid rgba(193, 141, 180, 0.2);
+        }
+        
+        .reminder-section h2 {
+            font-family: 'Cormorant Upright', serif;
+            color: #E2CAD8;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        .reminder-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 15px;
+        }
+        
+        .reminder-group h3 {
+            color: #C18DB4;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .reminder-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .reminder-row label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+        }
+        
+        .reminder-row input[type="time"] {
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(193,141,180,0.3);
+            border-radius: 10px;
+            color: rgb(255, 255, 255);
+        }
+        
+        .reminder-row select {
+            padding: 8px 12px;
+            background: rgba(171, 111, 166, 0.446);
+            border: 1px solid rgba(193,141,180,0.3);
+            border-radius: 10px;
+            color: rgba(249, 249, 249, 0.624);
+        }
+        
+        .reminder-row select option {
+            background: #a485b39a !important;
+            color: #000000 !important;
+        }
+        .save-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #C18DB4, #87A7D0);
+            border: none;
+            border-radius: 50px;
+            color: #0E1F2F;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(193,141,180,0.3);
+        }
+        
+        .test-btn {
+            background: rgba(193,141,180,0.2);
+            border: 1px solid rgba(193,141,180,0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            color: #E2CAD8;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .test-btn:hover {
+            background: rgba(193,141,180,0.4);
+        }
+        
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            text-align: center;
+        }
+        
+        .status-success {
+            background: rgba(46,125,50,0.2);
+            color: #4caf50;
+            border: 1px solid #2e7d32;
+        }
+        
+        .status-error {
+            background: rgba(198,40,40,0.2);
+            color: #ef5350;
+            border: 1px solid #c62828;
+        }
+        
+        .food-tips {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .food-tip {
+            background: rgba(135,167,208,0.1);
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 14px;
+            color: #87A7D0;
+        }
+        
+        @media (max-width: 968px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="logo" onclick="window.location.href='/app'">🩺 DIABETES RISK AI</div>
+        <div class="nav-links">
+            <a href="/app" class="nav-link">Assessment</a>
+            <a href="/dashboard" class="nav-link">Analytics</a>
+            <a href="/doctors" class="nav-link">Doctors</a>
+            <a href="/chatbot" class="nav-link">AI Chat</a>
+            <a href="/wellness" class="nav-link active">Wellness</a>
+        </div>
+        <div class="right-nav">
+            <div class="profile-icon" onclick="window.location.href='/profile'" title="My Profile">👤</div>
+            <button class="logout-btn" onclick="logout()">Exit</button>
+        </div>
+    </nav>
+    
+    <div class="wellness-container">
+        <div class="two-columns">
+            <!-- Dietary Advice Section -->
+            <div class="dietary-section">
+                <h2> Dietary Advice</h2>
+                
+                <div id="dietaryStatus" class="status-message" style="display: none;"></div>
+                
+                <div class="advice-card">
+                    <h3> Get Personalized Advice</h3>
+                    <div class="advice-input-area">
+                        <input type="text" id="dietaryQuery" placeholder="e.g., What should I eat for breakfast?">
+                        <button class="get-advice-btn" onclick="getDietaryAdvice()">Get Advice</button>
+                    </div>
+                </div>
+                
+                <div id="adviceResult" class="advice-card" style="display: none;">
+                    <h3> AI Recommendation</h3>
+                    <div id="adviceText" class="advice-text"></div>
+                </div>
+                
+                <div class="advice-card">
+                    <h3> Healthy Food Tips</h3>
+                    <div class="food-tips">
+                        <span class="food-tip"> Leafy Greens</span>
+                        <span class="food-tip"> Fatty Fish</span>
+                        <span class="food-tip"> Avocado</span>
+                        <span class="food-tip"> Nuts</span>
+                        <span class="food-tip"> Beans</span>
+                        <span class="food-tip"> Berries</span>
+                        <span class="food-tip"> Eggs</span>
+                        <span class="food-tip"> Sweet Potatoes</span>
+                    </div>
+                </div>
+                
+                <div class="advice-card">
+                    <h3> Foods to Limit</h3>
+                    <div class="food-tips">
+                        <span class="food-tip"> Sugary Drinks</span>
+                        <span class="food-tip"> White Bread</span>
+                        <span class="food-tip"> Pastries</span>
+                        <span class="food-tip"> Fried Foods</span>
+                        <span class="food-tip"> Processed Pizza</span>
+                        <span class="food-tip"> Ice Cream</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reminder Settings Section -->
+            <div class="reminder-section">
+                <h2> Health Reminders</h2>
+                
+                <div id="reminderStatus" class="status-message" style="display: none;"></div>
+                
+                <div class="reminder-group">
+                    <h3> Meal Reminders</h3>
+                    
+                    <div class="reminder-row">
+                        <label>
+                            <input type="checkbox" id="enableBreakfast"> Breakfast
+                        </label>
+                        <input type="time" id="breakfastTime" value="08:00">
+                    </div>
+                    
+                    <div class="reminder-row">
+                        <label>
+                            <input type="checkbox" id="enableLunch"> Lunch
+                        </label>
+                        <input type="time" id="lunchTime" value="13:00">
+                    </div>
+                    
+                    <div class="reminder-row">
+                        <label>
+                            <input type="checkbox" id="enableDinner"> Dinner
+                        </label>
+                        <input type="time" id="dinnerTime" value="19:00">
+                    </div>
+                </div>
+                
+                <div class="reminder-group">
+                    <h3> Exercise Reminder</h3>
+                    
+                    <div class="reminder-row">
+                        <label>
+                            <input type="checkbox" id="enableExercise"> Daily Exercise
+                        </label>
+                        <input type="time" id="exerciseTime" value="18:00">
+                    </div>
+                </div>
+                
+                <div class="reminder-group">
+                    <h3> Dietary Preference</h3>
+                    
+                    <div class="reminder-row">
+                        <select id="dietaryPreference">
+                            <option value="balanced">Balanced</option>
+                            <option value="vegetarian">Vegetarian</option>
+                            <option value="low-carb">Low Carb</option>
+                            <option value="mediterranean">Mediterranean</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="reminder-group">
+                    <h3> Test Reminders</h3>
+                    <div class="reminder-row">
+                        <button class="test-btn" onclick="testReminder('breakfast')">Test Breakfast</button>
+                        <button class="test-btn" onclick="testReminder('lunch')">Test Lunch</button>
+                        <button class="test-btn" onclick="testReminder('dinner')">Test Dinner</button>
+                        <button class="test-btn" onclick="testReminder('exercise')">Test Exercise</button>
+                    </div>
+                </div>
+                
+                <button class="save-btn" onclick="saveReminderSettings()"> Save Reminder Settings</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const token = localStorage.getItem('authToken');
+        
+        if (!token) {
+            window.location.href = '/login';
+        }
+        
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('username');
+            localStorage.removeItem('userId');
+            window.location.href = '/';
+        }
+        
+        // ========== DIETARY ADVICE FUNCTIONS ==========
+        async function getDietaryAdvice() {
+            const query = document.getElementById('dietaryQuery').value.trim();
+            
+            if (!query) {
+                showStatus('dietaryStatus', 'Please enter a question', 'error');
+                return;
+            }
+            
+            showStatus('dietaryStatus', 'Getting AI advice...', 'success');
+            
+            try {
+                const response = await fetch('/api/dietary', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ query: query })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('adviceText').innerHTML = data.advice.replace(/\n/g, '<br>');
+                    document.getElementById('adviceResult').style.display = 'block';
+                    document.getElementById('dietaryStatus').style.display = 'none';
+                } else {
+                    showStatus('dietaryStatus', 'Error getting advice', 'error');
+                }
+            } catch (error) {
+                showStatus('dietaryStatus', 'Connection error', 'error');
+            }
+        }
+        
+        // ========== REMINDER FUNCTIONS ==========
+        async function loadReminderSettings() {
+            try {
+                const response = await fetch('/api/reminder/settings', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const settings = await response.json();
+                
+                document.getElementById('enableBreakfast').checked = settings.enable_breakfast || false;
+                document.getElementById('breakfastTime').value = settings.breakfast_time ? settings.breakfast_time.slice(0,5) : '08:00';
+                document.getElementById('enableLunch').checked = settings.enable_lunch || false;
+                document.getElementById('lunchTime').value = settings.lunch_time ? settings.lunch_time.slice(0,5) : '13:00';
+                document.getElementById('enableDinner').checked = settings.enable_dinner || false;
+                document.getElementById('dinnerTime').value = settings.dinner_time ? settings.dinner_time.slice(0,5) : '19:00';
+                document.getElementById('enableExercise').checked = settings.enable_exercise || false;
+                document.getElementById('exerciseTime').value = settings.exercise_time ? settings.exercise_time.slice(0,5) : '18:00';
+                document.getElementById('dietaryPreference').value = settings.dietary_preference || 'balanced';
+            } catch (error) {
+                console.error('Error loading reminder settings:', error);
+            }
+        }
+        
+        async function saveReminderSettings() {
+            const settings = {
+                enable_breakfast: document.getElementById('enableBreakfast').checked,
+                breakfast_time: document.getElementById('breakfastTime').value + ':00',
+                enable_lunch: document.getElementById('enableLunch').checked,
+                lunch_time: document.getElementById('lunchTime').value + ':00',
+                enable_dinner: document.getElementById('enableDinner').checked,
+                dinner_time: document.getElementById('dinnerTime').value + ':00',
+                enable_exercise: document.getElementById('enableExercise').checked,
+                exercise_time: document.getElementById('exerciseTime').value + ':00',
+                dietary_preference: document.getElementById('dietaryPreference').value
+            };
+            
+            try {
+                const response = await fetch('/api/reminder/settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(settings)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('reminderStatus', ' Reminder settings saved successfully!', 'success');
+                } else {
+                    showStatus('reminderStatus', ' Error saving settings', 'error');
+                }
+            } catch (error) {
+                showStatus('reminderStatus', ' Connection error', 'error');
+            }
+        }
+        
+        async function testReminder(type) {
+            try {
+                const response = await fetch('/api/reminder/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ type: type })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showStatus('reminderStatus', ` Test ${type} reminder sent to your email!`, 'success');
+                } else {
+                    showStatus('reminderStatus', ` Failed to send test reminder`, 'error');
+                }
+            } catch (error) {
+                showStatus('reminderStatus', ' Connection error', 'error');
+            }
+        }
+        
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status-message status-${type}`;
+            element.style.display = 'block';
+            setTimeout(() => element.style.display = 'none', 3000);
+        }
+        
+        loadReminderSettings();
+    </script>
+</body>
+</html>

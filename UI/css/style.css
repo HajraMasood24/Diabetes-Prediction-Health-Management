@@ -1,0 +1,476 @@
+/* ui/css/style.css */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Upright:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0E1F2F 0%, #27425D 100%);
+    min-height: 100vh;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+/* Typography - Using Cormorant Upright for headings */
+h1, h2, h3, h4, h5, h6,
+.quiche-text,
+.logo,
+.hero-section h1,
+.stat-value,
+.chart-card h3,
+.login-card h2,
+.doctor-card h3,
+.doctor-name {
+    font-family: 'Cormorant Upright', serif;
+    font-weight: 600;
+}
+
+/* Keep Poppins for body text, labels, and form elements */
+p, span, a, button, input, select, label, 
+.nav-link, .logout-btn, .btn-primary, .btn-outline,
+.filter-tab, .detail-item, .status-badge, .distance-badge,
+.results-count, .location-header, .stat-label {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Glassmorphism Components */
+.glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    border: 1px solid rgba(193, 141, 180, 0.2);
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    border-color: rgba(193, 141, 180, 0.5);
+    transform: translateY(-5px);
+}
+
+.glass-nav {
+    background: rgba(14, 31, 47, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+/* Navigation */
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background: rgba(14, 31, 47, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(193, 141, 180, 0.2);
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #C18DB4, #87A7D0);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Cormorant Upright', serif;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    padding: 8px 20px;
+    border-radius: 25px;
+    transition: all 0.3s;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: #C18DB4;
+    background: rgba(193, 141, 180, 0.1);
+}
+
+.right-nav {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.profile-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #C18DB4, #87A7D0);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #0E1F2F;
+    font-weight: bold;
+    font-size: 18px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.profile-icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(193, 141, 180, 0.5);
+}
+
+.logout-btn {
+    background: rgba(193, 141, 180, 0.2);
+    border: 1px solid rgba(193, 141, 180, 0.3);
+    padding: 8px 20px;
+    border-radius: 25px;
+    color: #E2CAD8;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+}
+
+.logout-btn:hover {
+    background: rgba(193, 141, 180, 0.4);
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, #C18DB4, #87A7D0);
+    border: none;
+    padding: 14px 28px;
+    border-radius: 50px;
+    color: #0E1F2F;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(193, 141, 180, 0.3);
+}
+
+.btn-outline {
+    background: rgba(193, 141, 180, 0.2);
+    border: 1px solid rgba(193, 141, 180, 0.3);
+    padding: 10px 24px;
+    border-radius: 25px;
+    color: #E2CAD8;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+}
+
+.btn-outline:hover {
+    background: rgba(193, 141, 180, 0.4);
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 20px; 
+    color: #C18DB4;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 15px 18px;  /* Slightly more padding */
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(193, 141, 180, 0.3);
+    border-radius: 15px;
+    color: rgb(96, 76, 103);
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;  /* Increased from 14px */
+    transition: all 0.3s ease;
+}
+
+.form-group select option {
+    background: #a485b39a !important;
+    color: #000000 !important;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #C18DB4;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 14px;
+}
+
+/* BMI Calculator Link */
+.form-group a {
+    font-size: 13px;
+    display: block;
+    text-align: center;
+    margin-top: 8px;
+    color: #87A7D0;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.form-group a:hover {
+    color: #C18DB4;
+    transform: translateX(2px);
+}
+
+/* Section Headings */
+.quiche-text {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+/* Form Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* Container */
+.main-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px;
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.hero-section h1 {
+    font-size: 56px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #E2CAD8, #C18DB4, #87A7D0);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-family: 'Cormorant Upright', serif;
+    font-weight: 700;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    padding: 30px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 48px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #E2CAD8, #C18DB4);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 15px 0;
+    font-family: 'Cormorant Upright', serif;
+}
+
+.stat-label {
+    color: #87A7D0;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.stat-description {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 5px;
+}
+
+/* Charts Grid */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.chart-card {
+    padding: 30px;
+}
+
+.chart-card h3 {
+    color: #E2CAD8;
+    margin-bottom: 20px;
+    text-align: center;
+    font-family: 'Cormorant Upright', serif;
+    font-weight: 600;
+    font-size: 24px;
+}
+
+canvas {
+    max-height: 300px;
+    width: 100%;
+}
+
+/* Two Column Layout */
+.two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 30px;
+}
+
+/* Login Modal */
+.login-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(14, 31, 47, 0.95);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.login-card {
+    background: rgba(39, 66, 93, 0.9);
+    backdrop-filter: blur(20px);
+    padding: 50px;
+    border-radius: 30px;
+    width: 420px;
+    text-align: center;
+    border: 1px solid rgba(193, 141, 180, 0.3);
+}
+
+.login-card h2 {
+    color: #E2CAD8;
+    margin-bottom: 30px;
+    font-family: 'Cormorant Upright', serif;
+    font-weight: 600;
+    font-size: 32px;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(193, 141, 180, 0.3);
+    border-radius: 12px;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .two-columns {
+        grid-template-columns: 1fr;
+    }
+    
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .hero-section h1 {
+        font-size: 36px;
+    }
+    
+    .main-container {
+        padding: 20px;
+    }
+    
+    .nav-bar {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px 20px;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .right-nav {
+        justify-content: center;
+    }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #C18DB4;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #87A7D0;
+}
