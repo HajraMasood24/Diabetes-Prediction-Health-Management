@@ -1,31 +1,6 @@
-#Secrets—never commit
 .env
-
-#Python
 __pycache__/
 *.pyc
-*.pyo
+tf_env/
 venv/
 .venv/
-env/
-*.egg-info/
-
-#Database (contains real user data, regenerated automatically on first run)
-diabetes.db
-diabetes.db-wal
-diabetes.db-shm
-
-#Regenerable data/output artifacts (produced by preprocessing.py / model.py / the app itself)
-X_train_original.npy
-X_train_preprocessed.npy
-X_test_preprocessed.npy
-y_train_original.npy
-y_train_preprocessed.npy
-y_test_preprocessed.npy
-predictions.csv
-
-# OS / editor cruft
-.DS_Store
-.vscode/
-.idea/
-*.log
